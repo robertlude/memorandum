@@ -4,7 +4,15 @@ describe Memorandum do
   # Subject
 
   subject do
-    klass = Class.new
+    klass = Class.new do
+      def an_instance_method_returning_nil
+        nil
+      end
+
+      def an_instance_method_returning_not_nil
+        SecureRandom.uuid
+      end
+    end
     klass.extend described_class
     klass
   end
@@ -13,10 +21,6 @@ describe Memorandum do
 
   def call_memoized args
     instance.send memo_method_name, *args
-  end
-
-  def dummy
-    dummy_value
   end
 
   # Shared Groups
@@ -34,7 +38,9 @@ describe Memorandum do
     end
 
     it 'only calls the block once the first time per set of arguments' do
-      expect(self).to receive(:dummy).exactly(memo_method_args.length).times
+      expect(instance)
+      .to receive(target_method)
+      .exactly(memo_method_args.length).times
 
       memo_method_args.each do |args|
         instance.send memo_method_name, *args
@@ -57,15 +63,16 @@ describe Memorandum do
       ]
     }
 
-    before { subject.memo(memo_method_name) { dummy } }
 
     context 'when the memoized value is nil' do
-      let(:dummy_value) { }
+      let(:target_method) { :an_instance_method_returning_nil }
+      before { subject.memo(memo_method_name) { |*args| an_instance_method_returning_nil } }
       include_examples 'proper memoization'
     end
 
     context 'when the memoized value is not nil' do
-      let(:dummy_value) { SecureRandom.uuid }
+      let(:target_method) { :an_instance_method_returning_not_nil }
+      before { subject.memo(memo_method_name) { |*args| an_instance_method_returning_not_nil } }
       include_examples 'proper memoization'
     end
   end
