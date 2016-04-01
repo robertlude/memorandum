@@ -3,7 +3,7 @@ require_relative './lib/memorandum/version'
 Gem::Specification.new do |gem_specification|
   {
     author:   'Robert Lude',
-    date:     '2016-02-04',
+    date:     '2016-04-01',
     email:    'rob@ertlu.de',
     homepage: 'https://www.github.com/robertlude/memorandum',
     license:  'MIT',

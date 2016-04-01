@@ -4,76 +4,85 @@ describe Memorandum do
   # Subject
 
   subject do
-    klass = Class.new do
-      def an_instance_method_returning_nil
-        nil
-      end
+    test_class.tap do |klass|
+      # doing this here rather than in `create_test_class` to emphasize that
+      # we are testing memorandum and not the test class
 
-      def an_instance_method_returning_not_nil
-        SecureRandom.uuid
-      end
+      klass.extend(Memorandum)
+      klass.send(:memo, method_name)
     end
-    klass.extend described_class
-    klass
   end
+
+  # Lets
+
+  let(:instance)    { subject.new }
+  let(:method_name) { "method_#{SecureRandom.uuid.tr '-', '_'}" }
 
   # Helpers
 
-  def call_memoized args
-    instance.send memo_method_name, *args
-  end
-
-  # Shared Groups
-
-  shared_examples_for 'proper memoization' do
-    it 'creates a method with the supplied name' do
-      expect(instance).to respond_to memo_method_name
-    end
-
-    it 'returns the same value for the same arguments on subsequent calls' do
-      memo_method_args.each do |args|
-        expect(call_memoized args)
-        .to eq call_memoized args
-      end
-    end
-
-    it 'only calls the block once the first time per set of arguments' do
-      expect(instance)
-      .to receive(target_method)
-      .exactly(memo_method_args.length).times
-
-      memo_method_args.each do |args|
-        instance.send memo_method_name, *args
-        instance.send memo_method_name, *args
-      end
-    end
+  def create_test_class method_name, &block
+    Class.new { define_method method_name, block }
   end
 
   # Tests
 
-  it { is_expected.to respond_to :memo }
+  let(:test_class) { create_test_class(method_name) { } }
+
+  it 'provides a class method .memo' do
+    expect(subject).to respond_to :memo
+  end
 
   describe '.memo' do
-    let(:instance)         { subject.new }
-    let(:memo_method_name) { SecureRandom.uuid.tr '-', '_' }
-    let(:memo_method_args) {
-      [
-        Array.new,
-        *Array.new(2) { Array.new(rand 1..5) { SecureRandom.uuid } },
-      ]
-    }
+    let(:test_class) { create_test_class(method_name) { rand } }
 
-
-    context 'when the memoized value is nil' do
-      let(:target_method) { :an_instance_method_returning_nil }
-      before { subject.memo(memo_method_name) { |*args| an_instance_method_returning_nil } }
-      include_examples 'proper memoization'
+    it 'preserves the original method name' do
+      expect(instance).to respond_to method_name
     end
 
-    context 'when the memoized value is not nil' do
-      let(:target_method) { :an_instance_method_returning_not_nil }
-      before { subject.memo(memo_method_name) { |*args| an_instance_method_returning_not_nil } }
-      include_examples 'proper memoization'
+    it 'returns the same value on subsequent calls' do
+      result1 = instance.send method_name
+      result2 = instance.send method_name
+      expect(result1).to eq result2
+    end
+
+    it 'does not call the original method more than once' do
+      test_class = Class.new do
+                     extend Memorandum
+                     def test_hook_method() end
+                     def test() test_hook_method end
+                     memo :test
+                   end
+
+      instance = test_class.new
+
+      expect(instance).to receive(:test_hook_method).once
+    end
+
+    context 'when the original method returns nil' do
+      let(:test_class) { create_test_class(method_name) { } }
+
+      it 'memoizes nil' do
+        expect(instance.send method_name).to be nil
+      end
+    end
+
+    context 'when the original method accepts arguments' do
+      let(:test_class) do
+        create_test_class(method_name) { |*args| SecureRandom.uuid }
+      end
+
+      it 'caches per combination of arguments' do
+        args_a = Array.new(rand 1..10) { rand }
+        args_b = Array.new(rand 1..10) { rand }
+
+        result_a1 = instance.send method_name, *args_a
+        result_a2 = instance.send method_name, *args_a
+        expect(result_a1).to eq result_a2
+
+        result_b1 = instance.send method_name, *args_b
+        result_b2 = instance.send method_name, *args_b
+        expect(result_a1).to eq result_a2
+      end
     end
   end
 end

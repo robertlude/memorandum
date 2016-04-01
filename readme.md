@@ -1,60 +1,61 @@
 # Memorandum
 
-`Memorandum` provides a simple method to define memoized values.
-
-## Simple Example
+`Memorandum` provides a simple method to memoize method results
 
 ```ruby
-class SimpleExample
+require 'memorandum'
+
+class Example
   extend Memorandum
 
-  memo :hello do
-    puts 'Block for `#hello` memoizer called!'
-    "Hello!"
+  memo def a_method
+    puts "Hello from #a_method!"
+    '👓'
+  end
+
+  memo def another_method n
+    puts "Hello from #another_method(#{n.inspect})"
+    (((n + 2) / 3).to_i * 3 * '🐛🐜🐝')[0...n].strip
   end
 end
 
-example = SimpleExample.new
+example = Example.new
 
-puts example.hello
-puts example.hello
+puts example.a_method
+puts example.a_method
+puts example.another_method 3
+puts example.another_method 3
+puts example.another_method 5
+puts example.another_method 5
 ```
 
-Result:
-
 ```
-Block for `#hello` memoizer called!
-Hello!
-Hello!
+Hello from #a_method!
+👓
+👓
+Hello from #another_method(3)
+🐛  🐜  🐝
+🐛  🐜  🐝
+Hello from #another_method(5)
+🐛  🐜  🐝  🐛  🐜
+🐛  🐜  🐝  🐛  🐜
 ```
 
-## Example with Arguments
+## Usage
+
+### Ruby >= 2.1
 
 ```ruby
-class ExampleWithArguments
-  extend Memorandum
-
-  memo :multiply do |a, b|
-    puts "Block for `#multiply` memoizer called with (#{a}, #{b})!"
-    a * b
-  end
+memo def the_method arg, another_arg
+  'Hello, world'
 end
-
-example = ExampleWithArguments.new
-
-puts example.multiply 2, 3
-puts example.multiply 2, 3
-puts example.multiply 4, 5
-puts example.multiply 4, 5
 ```
 
-Result:
+### Ruby < 2.1
 
-```
-Block for `#multiply` memoizer called with (2, 3)!
-6
-6
-Block for `#multiply` memoizer called with (4, 5)!
-20
-20
+```ruby
+def the_method
+  'Hello, world'
+end
+memo :the_method
 ```
