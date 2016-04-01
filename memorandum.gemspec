@@ -18,6 +18,12 @@ Gem::Specification.new do |gem_specification|
   }.each { |key, value| gem_specification.send "#{key}=", value }
 
   {
+    ice_nine: '0.11.2'
+  }.each do |gem_name, version|
+    gem_specification.add_runtime_dependency gem_name, *Array(version)
+  end
+
+  {
     byebug: nil,
     rspec:  ['>= 3', '< 4'],
   }.each do |gem_name, version|

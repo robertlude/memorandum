@@ -8,6 +8,8 @@ describe Memorandum do
       # doing this here rather than in `create_test_class` to emphasize that
       # we are testing memorandum and not the test class
 
+      next if test_class_already_memoized
+
       klass.extend(Memorandum)
       klass.send(:memo, method_name)
     end
@@ -15,8 +17,10 @@ describe Memorandum do
 
   # Lets
 
-  let(:instance)    { subject.new }
-  let(:method_name) { "method_#{SecureRandom.uuid.tr '-', '_'}" }
+  let(:instance)                    { subject.new }
+  let(:method_name)                 { "method_#{SecureRandom.uuid.tr '-', '_'}" }
+  let(:test_class)                  { create_test_class(method_name) { } }
+  let(:test_class_already_memoized) { false }
 
   # Helpers
 
@@ -25,8 +29,6 @@ describe Memorandum do
   end
 
   # Tests
-
-  let(:test_class) { create_test_class(method_name) { } }
 
   it 'provides a class method .memo' do
     expect(subject).to respond_to :memo
@@ -56,6 +58,9 @@ describe Memorandum do
       instance = test_class.new
 
       expect(instance).to receive(:test_hook_method).once
+
+      instance.test
+      instance.test
     end
 
     context 'when the original method returns nil' do
@@ -82,6 +87,37 @@ describe Memorandum do
         result_b1 = instance.send method_name, *args_b
         result_b2 = instance.send method_name, *args_b
         expect(result_a1).to eq result_a2
+      end
+    end
+
+    context 'when given a "freeze" flag' do
+      let(:test_class_already_memoized) { true }
+      let(:test_class) do
+        Class.new do
+          extend Memorandum
+          def test() {} end
+          memo :freeze, :test
+        end
+      end
+
+      it 'freezes the value' do
+        expect(instance.test).to be_frozen
+      end
+    end
+
+    context 'when given a "deep_freeze" flag' do
+      let(:test_class_already_memoized) { true }
+      let(:test_class) do
+        Class.new do
+          extend Memorandum
+          def test() {child: {}} end
+          memo :deep_freeze, :test
+        end
+      end
+
+      it 'deep freezes the value' do
+        expect(instance.test).to be_frozen
+        expect(instance.test[:child]).to be_frozen
       end
     end
   end
