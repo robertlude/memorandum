@@ -1,5 +1,10 @@
+require 'ice_nine'
+
 module Memorandum
-  def memo name
+  def memo *arguments
+    name = arguments.pop
+    flags = arguments
+
     memoized_statuses = "@memoized_statuses_for_#{name}"
     memoized_values   = "@memoized_values_for_#{name}"
     unmemoized_name   = "unmemoized_#{name}"
@@ -14,9 +19,15 @@ module Memorandum
         || instance_variable_set(memoized_values, Hash[])
 
       unless statuses[args]
-        values[args]   = send unmemoized_name, *args
+        value = send unmemoized_name, *args
+
+        value = value.freeze              if flags.include? :freeze
+        value = IceNine.deep_freeze value if flags.include? :deep_freeze
+
+        values[args]   = value
         statuses[args] = true
       end
+
       values[args]
     end
   end

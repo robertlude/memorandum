@@ -1,6 +1,7 @@
 # Memorandum
 
-`Memorandum` provides a simple method to memoize method results
+`Memorandum` provides a simple method to memoize method results. It also
+provides flags for freezing the cached results: `freeze` and `deep_freeze`.
 
 ```ruby
 require 'memorandum'
@@ -16,6 +17,14 @@ class Example
   memo def another_method n
     puts "Hello from #another_method(#{n.inspect})"
     (((n + 2) / 3).to_i * 3 * '🐛🐜🐝')[0...n].strip
+  end
+
+  memo :deep_freeze, def yet_another_method
+    {
+      child: {
+        name: "Memoranda"
+      }
+    }
   end
 end
 
@@ -59,3 +68,18 @@ def the_method
 end
 memo :the_method
 ```
+
+## Flags
+
+Flags may optionally be used as arguments before the method name:
+
+```ruby
+memo :freeze, def my_method
+  { data: "my data" }
+end
+```
+
+| Flag | Description |
+| --- | --- |
+| `:freeze` | Freezes the result |
+| `:deep_freeze` | Freezes the result and all of it's descendants |
