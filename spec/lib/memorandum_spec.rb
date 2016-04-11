@@ -120,5 +120,33 @@ describe Memorandum do
         expect(instance.test[:child]).to be_frozen
       end
     end
+
+    context 'when the method name ends with a question mark' do
+      let(:method_name) { "#{super()}?" }
+
+      it 'does not raise an error' do
+        expect { instance.send method_name }.not_to raise_error
+      end
+
+      it 'memoizes properly' do
+        result_a = instance.send method_name
+        result_b = instance.send method_name
+        expect(result_a).to eq result_b
+      end
+    end
+
+    context 'when the method name ends with an exclamation point' do
+      let(:method_name) { "#{super()}!" }
+
+      it 'does not raise an error' do
+        expect { instance.send method_name }.not_to raise_error
+      end
+
+      it 'memoizes properly' do
+        result_a = instance.send method_name
+        result_b = instance.send method_name
+        expect(result_a).to eq result_b
+      end
+    end
   end
 end
