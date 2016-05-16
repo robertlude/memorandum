@@ -149,4 +149,30 @@ describe Memorandum do
       end
     end
   end
+
+  context 'when the original method is public' do
+    it 'replaces the method with one of the same method type' do
+      expect(instance.public_methods).to include method_name.to_sym
+    end
+  end
+
+  context 'when the original method is private' do
+    let(:test_class) do
+      test_class.tap { |klass| klass.private method_name }
+    end
+
+    it 'replaces the method with one of the same method type' do
+      expect(instance.private_methods).to include method_name.to_sym
+    end
+  end
+
+  context 'when the original method is protected' do
+    let(:test_class) do
+      test_class.tap { |klass| klass.protected method_name }
+    end
+
+    it 'replaces the method with one of the same method type' do
+      expect(instance.protected_methods).to include method_name.to_sym
+    end
+  end
 end
