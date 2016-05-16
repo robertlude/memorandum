@@ -13,6 +13,8 @@ module Memorandum
     memoized_values   = memorandum_ivar_name MEMORANDUM_VALUES, name
     unmemoized_name   = "#{MEMORANDUM_UNMEMOIZED}_#{name}"
 
+    access = find_access name
+
     alias_method unmemoized_name, name
 
     define_method name do |*args|
@@ -31,6 +33,9 @@ module Memorandum
 
       values[args]
     end
+
+    send access, name
+    send access, unmemoized_name
   end
 
   private
@@ -46,6 +51,15 @@ module Memorandum
     "@#{MEMORANDUM_MEMOIZED}_#{name}_for_#{method_name}"
     .gsub('!', MEMORANDUM_BANG)
     .gsub('?', MEMORANDUM_BOOL)
+  end
+
+  def find_access method_name
+    case
+    when private_instance_methods.include?(method_name.to_sym)   then :private
+    when protected_instance_methods.include?(method_name.to_sym) then :protected
+    when public_instance_methods.include?(method_name.to_sym)    then :public
+    else :unknown
+    end
   end
 
   module InstanceMethods
