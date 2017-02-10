@@ -44,13 +44,31 @@ module Memorandum
   MEMORANDUM_STATUSES   = 'statuses'.freeze
   MEMORANDUM_UNMEMOIZED = 'unmemoized'.freeze
   MEMORANDUM_VALUES     = 'values'.freeze
-  MEMORANDUM_BANG       = '__BANG__'.freeze
-  MEMORANDUM_BOOL       = '__BOOL__'.freeze
+
+  MEMORANDUM_SPECIAL_CHARACTERS = IceNine.deep_freeze Hash[
+    '!'  => '__MEMORANDUM_BANG__',
+    '%'  => '__MEMORANDUM_PERCENT__',
+    '&'  => '__MEMORANDUM_AND__',
+    '*'  => '__MEMORANDUM_STAR__',
+    '+'  => '__MEMORANDUM_PLUS__',
+    '-'  => '__MEMORANDUM_DASH__',
+    '/'  => '__MEMORANDUM_SLASH__',
+    '<'  => '__MEMORANDUM_LESS__',
+    '='  => '__MEMORANDUM_EQUALS__',
+    '>'  => '__MEMORANDUM_MORE__',
+    '?'  => '__MEMORANDUM_BOOL__',
+    '[]' => '__MEMORANDUM_BRACKETS__',
+    '^'  => '__MEMORANDUM_CARET__',
+    '|'  => '__MEMORANDUM_PIPE__',
+    '~'  => '__MEMORANDUM_TILDE__',
+  ]
 
   def memorandum_ivar_name name, method_name
-    "@#{MEMORANDUM_MEMOIZED}_#{name}_for_#{method_name}"
-    .gsub('!', MEMORANDUM_BANG)
-    .gsub('?', MEMORANDUM_BOOL)
+    "@#{MEMORANDUM_MEMOIZED}_#{name}_for_#{method_name}".tap do |result|
+      MEMORANDUM_SPECIAL_CHARACTERS.each do |special_character, replacement|
+        result.gsub! special_character, replacement
+      end
+    end
   end
 
   def find_access method_name

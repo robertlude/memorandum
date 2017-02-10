@@ -121,9 +121,7 @@ describe Memorandum do
       end
     end
 
-    context 'when the method name ends with a question mark' do
-      let(:method_name) { "#{super()}?" }
-
+    shared_examples 'special character tests' do
       it 'does not raise an error' do
         expect { instance.send method_name }.not_to raise_error
       end
@@ -131,21 +129,23 @@ describe Memorandum do
       it 'memoizes properly' do
         result_a = instance.send method_name
         result_b = instance.send method_name
-        expect(result_a).to eq result_b
+        expect(result_a).to be result_b
       end
     end
 
-    context 'when the method name ends with an exclamation point' do
-      let(:method_name) { "#{super()}!" }
+    %w[? ! =].each do |string|
+      context "when the method name ends with '#{string}'" do
+        let(:method_name) { "#{super()}#{string}" }
 
-      it 'does not raise an error' do
-        expect { instance.send method_name }.not_to raise_error
+        include_examples 'special character tests'
       end
+    end
 
-      it 'memoizes properly' do
-        result_a = instance.send method_name
-        result_b = instance.send method_name
-        expect(result_a).to eq result_b
+    %w[! [] == + - * ** / % << >> & ^ | < > <= => <=> === != =~ !~].each do |operator|
+      context "when the method name is operator '#{operator}'" do
+        let(:method_name) { operator }
+
+        include_examples 'special character tests'
       end
     end
   end
@@ -158,7 +158,7 @@ describe Memorandum do
 
   context 'when the original method is private' do
     let(:test_class) do
-      test_class.tap { |klass| klass.private method_name }
+      super().tap { |klass| klass.send :private, method_name }
     end
 
     it 'replaces the method with one of the same method type' do
@@ -168,7 +168,7 @@ describe Memorandum do
 
   context 'when the original method is protected' do
     let(:test_class) do
-      test_class.tap { |klass| klass.protected method_name }
+      super().tap { |klass| klass.send :protected, method_name }
     end
 
     it 'replaces the method with one of the same method type' do
