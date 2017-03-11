@@ -1,0 +1,5 @@
+=== 2.1.5 / 2017-03-10
+
+* 1 minor enhancement
+
+  * Setup `hoe` for building, testing, and releasing

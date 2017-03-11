@@ -1,4 +1,5 @@
 require 'ice_nine'
+require 'securerandom'
 
 module Memorandum
   def self.extended base

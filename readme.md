@@ -1,9 +1,16 @@
 # Memorandum
 
+code :: https://github.com/robertlude/memorandum
+
+[![Gem Version](https://badge.fury.io/rb/memorandum.svg)](https://badge.fury.io/rb/memorandum)
 [![Build Status](https://travis-ci.org/robertlude/memorandum.svg?branch=master)](https://travis-ci.org/robertlude/memorandum)
 
-`Memorandum` provides a simple method to memoize method results. It also
-provides flags for freezing the cached results: `freeze` and `deep_freeze`.
+## Description
+
+Memorandum provides a simple method to memoize method results. It also provides
+flags for freezing the cached results: `freeze` and `deep_freeze`.
+
+## Example
 
 ```ruby
 require 'memorandum'
