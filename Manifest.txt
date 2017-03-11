@@ -6,5 +6,3 @@ lib/memorandum/version.rb
 readme.md
 spec/lib/memorandum_spec.rb
 spec/spec_helper.rb
-.rspec
-.travis.yml
