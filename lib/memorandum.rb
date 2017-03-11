@@ -1,9 +1,9 @@
 require 'ice_nine'
 
 module Memorandum
-  def self.extended base
-    base.send :include, InstanceMethods
-  end
+  # def self.extended base
+  #   base.send :include, InstanceMethods
+  # end
 
   def memo *arguments
     name = arguments.pop
@@ -80,9 +80,9 @@ module Memorandum
     end
   end
 
-  module InstanceMethods
-    def memorandum_fetch name, default
-      instance_variable_get(name) || instance_variable_set(name, default)
-    end
-  end
+  # module InstanceMethods
+  #   def memorandum_fetch name, default
+  #     instance_variable_get(name) || instance_variable_set(name, default)
+  #   end
+  # end
 end
