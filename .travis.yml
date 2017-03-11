@@ -1,3 +1,4 @@
+install: gem install hoe && rake check_extra_deps
 language: ruby
 rvm:
   - 2.0
