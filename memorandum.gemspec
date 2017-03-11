@@ -28,6 +28,7 @@ Gem::Specification.new do |gem_specification|
   end
 
   {
+    byebug: nil,
     rspec:  ['>= 3', '< 4'],
   }.each do |gem_name, version|
     gem_specification.add_development_dependency gem_name, *Array(version)

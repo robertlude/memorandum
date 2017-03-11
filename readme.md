@@ -1,5 +1,7 @@
 # Memorandum
 
+[![Build Status](https://travis-ci.org/robertlude/memorandum.svg?branch=master)](https://travis-ci.org/robertlude/memorandum)
+
 `Memorandum` provides a simple method to memoize method results. It also
 provides flags for freezing the cached results: `freeze` and `deep_freeze`.
 
