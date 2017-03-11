@@ -1,6 +1,0 @@
-History.txt
-Manifest.txt
-README.md
-Rakefile
-lib/memorandum.rb
-lib/memorandum/version.rb

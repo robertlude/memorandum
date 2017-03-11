@@ -10,4 +10,8 @@ Hoe.spec 'memorandum' do
 
   dependency 'byebug', '~> 9.0', :dev
   dependency 'rspec',  '~> 3.0', :dev
+
+  self.urls = Hash[
+    code: 'https://www.github.com/robertlude/memorandum'
+  ]
 end

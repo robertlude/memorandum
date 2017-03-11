@@ -1,7 +1,5 @@
 # Memorandum
 
-code :: https://github.com/robertlude/memorandum
-
 [![Gem Version](https://badge.fury.io/rb/memorandum.svg)](https://badge.fury.io/rb/memorandum)
 [![Build Status](https://travis-ci.org/robertlude/memorandum.svg?branch=master)](https://travis-ci.org/robertlude/memorandum)
 
