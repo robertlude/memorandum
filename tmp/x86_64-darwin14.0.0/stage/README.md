@@ -97,7 +97,7 @@ end
 2. `gem install hoe`
 3. Navigate to your local copy
 4. `rake newb` to setup development
-5. Run `rake compile` to compile C extensions
+5. Run `rake compile` to check compilation success
 6. Run `rake` to run tests
 7. Run `rake check_manifest` to make sure `Manifest.txt` remains up to date
 

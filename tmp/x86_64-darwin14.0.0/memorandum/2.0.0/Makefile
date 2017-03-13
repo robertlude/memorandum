@@ -10,7 +10,7 @@ ECHO = $(ECHO1:0=@echo)
 
 #### Start of system configuration section. ####
 
-srcdir = ext
+srcdir = ../../../../ext/memorandum
 topdir = /Users/rlude/.rubies/ruby-2.0.0-p576/include/ruby-2.0.0
 hdrdir = $(topdir)
 arch_hdrdir = /Users/rlude/.rubies/ruby-2.0.0-p576/include/ruby-2.0.0/x86_64-darwin14.0.0
@@ -130,7 +130,7 @@ DISTCLEANDIRS =
 
 extout = 
 extout_prefix = 
-target_prefix = 
+target_prefix = /memorandum
 LOCAL_LIBS = 
 LIBS =   -lpthread -ldl -lobjc 
 ORIG_SRCS = memorandum.c
@@ -228,7 +228,7 @@ site-install-rb: install-rb
 	$(Q) $(CC) $(INCFLAGS) $(CPPFLAGS) $(CFLAGS) $(COUTFLAG)$@ -c $<
 
 $(DLLIB): $(OBJS) Makefile
-	$(ECHO) linking shared-object $(DLLIB)
+	$(ECHO) linking shared-object memorandum/$(DLLIB)
 	-$(Q)$(RM) $(@)
 	$(Q) $(LDSHARED) -o $@ $(OBJS) $(LIBPATH) $(DLDFLAGS) $(LOCAL_LIBS) $(LIBS)
 	$(Q) test -z '$(RUBY_CODESIGN)' || codesign -s '$(RUBY_CODESIGN)' -f $@
