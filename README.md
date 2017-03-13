@@ -90,3 +90,20 @@ end
 | --- | --- |
 | `:freeze` | Freezes the result |
 | `:deep_freeze` | Freezes the result and all of it's descendants |
+
+## Development
+
+1. Fork this repo
+2. `gem install hoe`
+3. Navigate to your local copy
+4. `rake newb` to setup development
+5. Run `rake` to run tests
+6. Run `rake check_manifest` to make sure `Manifest.txt` remains up to date
+
+## Packaging
+
+1. Make sure `lib/memorandum/version.rb` is up-to-date
+2. `rake gem` to build the gem
+3. `rake install_gem` to test locally
+4. `rake release_sanity VERSION=x.y.z` to check release sanity
+5. `rake release VERSION=x.y.z` to publish

@@ -10,3 +10,22 @@ Hoe.spec 'memorandum' do
 
   self.urls = Hash code: 'https://www.github.com/robertlude/memorandum'
 end
+
+# unwanted / unconfigured things
+
+tasks = Rake.application.instance_variable_get '@tasks'
+
+%w[
+  announce
+  audit
+  clobber_docs
+  dcov
+  debug_email
+  docs
+  generate_key
+  post_blog
+  publish_docs
+  ridocs
+  spec
+  test
+].each { |task| tasks.delete task }
