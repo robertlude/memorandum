@@ -18,7 +18,6 @@ tasks = Rake.application.instance_variable_get '@tasks'
 %w[
   announce
   audit
-  clobber_docs
   dcov
   debug_email
   docs
