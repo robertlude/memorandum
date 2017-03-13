@@ -1,19 +1,22 @@
 language: ruby
-script: rake travis
+
+script:
+  - rake check_manifest
+  - rake
 
 after_script:
-- rake travis:after -t
+  # - rake travis:after -t
 
 before_script:
-- gem install hoe-travis --no-rdoc --no-ri
-- rake travis:before -t
+  - gem install hoe --no-rdoc --no-ri
+  - rake check_extra_deps
 
 notifications:
   email:
-  - rob@ertlu.de
+    - rob@ertlu.de
 
 rvm:
-- 2.0.0
+  - 2.0.0
   # - 2.1.0
   # - 2.2.0
   # - 2.3.0

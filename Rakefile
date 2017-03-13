@@ -1,7 +1,5 @@
 require 'hoe'
 
-Hoe.plugin :travis
-
 Hoe.spec 'memorandum' do
   developer 'Robert Lude', 'rob@ertlu.de'
   license   'MIT'
