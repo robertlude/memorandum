@@ -25,6 +25,5 @@ tasks = Rake.application.instance_variable_get '@tasks'
   post_blog
   publish_docs
   ridocs
-  spec
   test
 ].each { |task| tasks.delete task }
