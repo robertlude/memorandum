@@ -4,9 +4,6 @@ script:
   - rake check_manifest
   - rake
 
-after_script:
-  # - rake travis:after -t
-
 before_script:
   - gem install hoe --no-rdoc --no-ri
   - rake check_extra_deps
@@ -17,6 +14,7 @@ notifications:
 
 rvm:
   - 2.0.0
-  # - 2.1.0
-  # - 2.2.0
-  # - 2.3.0
+  - 2.1.0
+  - 2.2.0
+  - 2.3.0
+  - 2.4.0
