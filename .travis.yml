@@ -5,6 +5,7 @@ script:
   - rake
 
 before_script:
+  - gem install rake-compiler
   - gem install hoe --no-rdoc --no-ri
   - rake check_extra_deps
 
