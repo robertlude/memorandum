@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'rubygems'
 require 'hoe'
 
@@ -12,14 +13,16 @@ Hoe.spec 'memorandum' do
   dependency 'rake-compiler', '~> 1.0', :dev
   dependency 'rspec',         '~> 3.0', :dev
 
-  self.urls = Hash code: 'https://www.github.com/robertlude/memorandum'
-
   extension 'memorandum'
 
-  # TODO cleanup
-  # Rake::ExtensionTask.new('memorandum', spec) do |ext|
-  #   ext.lib_dir = File.join('lib')
-  # end
+  # TODO is there a nicer way to do this beside stupid readme formatting?
+  self.urls = Hash code: 'https://www.github.com/robertlude/memorandum'
+end
+
+# clean up after compile
+
+Rake::Task['compile'].enhance do
+  FileUtils.rm_rf 'tmp'
 end
 
 # unwanted / unconfigured things
