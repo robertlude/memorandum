@@ -10,7 +10,7 @@ module Memorandum
     flags = arguments
 
     memoized_statuses = memorandum_ivar_name MEMORANDUM_STATUSES, name
-    memoized_values   = memorandum_ivar_name MEMORANDUM_VALUES, name
+    memoized_values   = memorandum_ivar_name MEMORANDUM_VALUES,   name
     unmemoized_name   = "#{MEMORANDUM_UNMEMOIZED}_#{name}"
 
     access = find_access name
@@ -38,6 +38,14 @@ module Memorandum
     send access, unmemoized_name
   end
 
+  def memorandum_ivar_name name, method_name
+    "@#{MEMORANDUM_MEMOIZED}_#{name}_for_#{method_name}".tap do |result|
+      MEMORANDUM_SPECIAL_CHARACTERS.each do |special_character, replacement|
+        result.gsub! special_character, replacement
+      end
+    end
+  end
+
   private
 
   MEMORANDUM_MEMOIZED   = 'memoized'.freeze
@@ -63,14 +71,6 @@ module Memorandum
     '~'  => '__MEMORANDUM_TILDE__',
   ]
 
-  def memorandum_ivar_name name, method_name
-    "@#{MEMORANDUM_MEMOIZED}_#{name}_for_#{method_name}".tap do |result|
-      MEMORANDUM_SPECIAL_CHARACTERS.each do |special_character, replacement|
-        result.gsub! special_character, replacement
-      end
-    end
-  end
-
   def find_access method_name
     case
     when private_instance_methods.include?(method_name.to_sym)   then :private
@@ -83,6 +83,16 @@ module Memorandum
   module InstanceMethods
     def memorandum_fetch name, default
       instance_variable_get(name) || instance_variable_set(name, default)
+    end
+
+    def memorandum_reset name
+      memoized_statuses = self
+                            .class
+                            .memorandum_ivar_name(MEMORANDUM_STATUSES, name)
+
+      statuses = memorandum_fetch memoized_statuses, Hash[]
+
+      statuses.clear
     end
   end
 end

@@ -10,7 +10,7 @@ describe Memorandum do
 
       next if test_class_already_memoized
 
-      klass.extend(Memorandum)
+      klass.extend(described_class)
       klass.send(:memo, method_name)
     end
   end
@@ -22,21 +22,23 @@ describe Memorandum do
   let(:test_class)                  { create_test_class(method_name) { } }
   let(:test_class_already_memoized) { false }
 
-  # Helpers
+  let :test_class do
+    Class.new.tap do |test_class|
+      test_class.send :define_method, method_name do
+        SecureRandom.uuid
+      end
+    end
+  end
 
-  def create_test_class method_name, &block
-    Class.new { define_method method_name, block }
+  # Wrappers
+
+  before do
+    Thread.current.thread_variable_set :test_method_call_count, 0
   end
 
   # Tests
 
-  it 'provides a class method .memo' do
-    expect(subject).to respond_to :memo
-  end
-
   describe '.memo' do
-    let(:test_class) { create_test_class(method_name) { rand } }
-
     it 'preserves the original method name' do
       expect(instance).to respond_to method_name
     end
@@ -48,23 +50,44 @@ describe Memorandum do
     end
 
     it 'does not call the original method more than once' do
-      test_class = Class.new do
-                     extend Memorandum
-                     def test_hook_method() end
-                     def test() test_hook_method end
-                     memo :test
+      Thread.current.thread_variable_set :test_method_call_count, 0
+
+      test_class = Class.new.tap do |test_class|
+                     test_class.extend described_class
+
+                     test_class.send :define_method, method_name do
+                       count = Thread
+                                 .current
+                                 .thread_variable_get(:test_method_call_count)
+
+                       Thread
+                         .current
+                         .thread_variable_set(
+                           :test_method_call_count,
+                           count + 1,
+                         )
+                     end
+
+                     test_class.memo method_name
                    end
 
       instance = test_class.new
 
-      expect(instance).to receive(:test_hook_method).once
+      instance.public_send method_name
+      instance.public_send method_name
 
-      instance.test
-      instance.test
+      count = Thread.current.thread_variable_get :test_method_call_count
+
+      expect(count).to be 1
     end
 
     context 'when the original method returns nil' do
-      let(:test_class) { create_test_class(method_name) { } }
+      let :test_class do
+        Class.new.tap do |test_class|
+          test_class.send :define_method, method_name do
+          end
+        end
+      end
 
       it 'memoizes nil' do
         expect(instance.send method_name).to be nil
@@ -72,8 +95,12 @@ describe Memorandum do
     end
 
     context 'when the original method accepts arguments' do
-      let(:test_class) do
-        create_test_class(method_name) { |*args| SecureRandom.uuid }
+      let :test_class do
+        Class.new.tap do |test_class|
+          test_class.send :define_method, method_name do |*args|
+            SecureRandom.uuid
+          end
+        end
       end
 
       it 'caches per combination of arguments' do
@@ -92,32 +119,46 @@ describe Memorandum do
 
     context 'when given a "freeze" flag' do
       let(:test_class_already_memoized) { true }
-      let(:test_class) do
-        Class.new do
-          extend Memorandum
-          def test() {} end
-          memo :freeze, :test
+
+      let :test_class do
+        Class.new.tap do |test_class|
+          test_class.extend described_class
+
+          test_class.send :define_method, method_name do
+            SecureRandom.uuid
+          end
+
+          test_class.memo :freeze, method_name
         end
       end
 
       it 'freezes the value' do
-        expect(instance.test).to be_frozen
+        value = instance.public_send method_name
+
+        expect(value).to be_frozen
       end
     end
 
     context 'when given a "deep_freeze" flag' do
       let(:test_class_already_memoized) { true }
-      let(:test_class) do
-        Class.new do
-          extend Memorandum
-          def test() {child: {}} end
-          memo :deep_freeze, :test
+
+      let :test_class do
+        Class.new.tap do |test_class|
+          test_class.extend described_class
+
+          test_class.send :define_method, method_name do
+            Hash child: SecureRandom.uuid
+          end
+
+          test_class.memo :deep_freeze, method_name
         end
       end
 
       it 'deep freezes the value' do
-        expect(instance.test).to be_frozen
-        expect(instance.test[:child]).to be_frozen
+        value = instance.public_send method_name
+
+        expect(value).to be_frozen
+        expect(value[:child]).to be_frozen
       end
     end
 
@@ -148,31 +189,47 @@ describe Memorandum do
         include_examples 'special character tests'
       end
     end
-  end
 
-  context 'when the original method is public' do
-    it 'replaces the method with one of the same method type' do
-      expect(instance.public_methods).to include method_name.to_sym
+    context 'when the original method is public' do
+      it 'replaces the method with one of the same method type' do
+        expect(instance.public_methods).to include method_name.to_sym
+      end
+    end
+
+    context 'when the original method is private' do
+      let :test_class do
+        super().tap do |test_class|
+          test_class.send :private, method_name
+        end
+      end
+
+      it 'replaces the method with one of the same method type' do
+        expect(instance.private_methods).to include method_name.to_sym
+      end
+    end
+
+    context 'when the original method is protected' do
+      let :test_class do
+        super().tap do |test_class|
+          test_class.send :protected, method_name
+        end
+      end
+
+      it 'replaces the method with one of the same method type' do
+        expect(instance.protected_methods).to include method_name.to_sym
+      end
     end
   end
 
-  context 'when the original method is private' do
-    let(:test_class) do
-      super().tap { |klass| klass.send :private, method_name }
-    end
+  describe '#memorandum_reset' do
+    it 'resets memorandum\'s cache for that method' do
+      first_result = instance.public_send method_name
 
-    it 'replaces the method with one of the same method type' do
-      expect(instance.private_methods).to include method_name.to_sym
-    end
-  end
+      instance.memorandum_reset method_name
 
-  context 'when the original method is protected' do
-    let(:test_class) do
-      super().tap { |klass| klass.send :protected, method_name }
-    end
+      second_result = instance.public_send method_name
 
-    it 'replaces the method with one of the same method type' do
-      expect(instance.protected_methods).to include method_name.to_sym
+      expect(first_result).not_to eq second_result
     end
   end
 end
