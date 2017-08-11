@@ -18,6 +18,7 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
 require 'byebug'
+require 'securerandom'
 
 Dir['./lib/**/*.rb'].each do |file|
   require_relative File.expand_path "../../#{file}", __FILE__
